@@ -1,5 +1,5 @@
-# express-backend-skeleton
-  Express backend skeleton app built using TS
+# express-ejs-to-do-list
+  A simple TO-Do list app built using ```Express```, ```EJS```, ```Typescrip```t, ```HTML5``` & ```CSS3```
 
 # Features
 
@@ -11,6 +11,7 @@
     * ```logError()``` - Logs errors    
   * Middleware ```httpLogger()``` to log http request & response
   * Model-Controller architecture
+  * Static content and views will be served from ```/public``` directory
 
 # Setup Instructions
 
