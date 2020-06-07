@@ -1,7 +1,6 @@
 // Import modules
 import express from 'express';
 import chalk from 'chalk';
-import path from 'path';
 
 // Import routers
 import HealthRouter from './routers/healthRouter';
