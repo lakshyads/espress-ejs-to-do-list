@@ -1,7 +1,7 @@
 {
-  "name": "express-backend-skeleton",
+  "name": "express-ejs-to-do-list",
   "version": "1.0.0",
-  "description": "Express backend built using TS",
+  "description": "A simple TO-Do list app built using Express, EJS, Typescript, HTML5 & CSS3",
   "main": "server.ts",
   "scripts": {
     "tst": "tsc",
