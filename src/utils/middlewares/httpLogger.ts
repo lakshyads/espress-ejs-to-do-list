@@ -17,7 +17,8 @@ import { httpLoggerOptions, doLogRequest, doLogResponse } from '../../config/htt
  * @var showCookies
 */
 export interface httpLogOptions {
-    showBody?: boolean,
+    showReqBody?: boolean,
+    showResBody?: boolean,
     showHeaders?: boolean,
     showSession?: boolean,
     showCookies?: boolean,
@@ -28,7 +29,7 @@ export interface httpLogOptions {
  * @param res Express Response
  * @param next Express next funciton
  */
-const logHttp = (req: Request, res: Response, next: NextFunction) => {
+const logHttp = async (req: Request, res: Response, next: NextFunction) => {
     // for response time
     var startTimer = process.hrtime();
     const durationInMilliseconds = getActualDurationInMilliseconds(startTimer);
@@ -43,8 +44,8 @@ const logHttp = (req: Request, res: Response, next: NextFunction) => {
         '(status: ' + (res.statusCode === 200 ? chalk.magenta('Completed') : chalk.red('Not-Completed')) + ')',
     );
 
-    doLogRequest && logRequest(req, httpLoggerOptions, 'Logged by httpLogger middleware');
-    doLogResponse && logResponse(req, res, startTimer, httpLoggerOptions.showBody);
+    logRequest(req, httpLoggerOptions, 'Logged by httpLogger middleware');
+    logResponse(req, res, startTimer, httpLoggerOptions.showResBody);
 
 
     next();
@@ -57,23 +58,23 @@ const logHttp = (req: Request, res: Response, next: NextFunction) => {
  * @param options  httpLogOptions. Default = `{ showBody = true, showSession = true, showHeaders = true, showCookies = true }`
  * @param message Optional message
  */
-const logRequest = (req: Request, { showBody = true, showSession = true, showHeaders = true, showCookies = true }: httpLogOptions = {}, message?: string | null,) => {
+const logRequest = (req: Request, { showReqBody = true, showSession = true, showHeaders = true, showCookies = true }: httpLogOptions = {}, message?: string | null,) => {
     log('\n')
-    log(`${chalk.magenta.bold(`(?) Request spec =`)} `, {
+    log(`${chalk.magenta.bold(`(?) Request spec =`)} `, doLogRequest ? {
         requested: `${req?.method} ${req?.path}`,
         timeStamp: dateTimeStamp(),
         req: {
             protocol: req?.protocol ?? '',
-            params: req?.params ?? '',
-            cookies: showCookies ? req?.cookies ?? '' : 'not logged',
+            params: req?.params ? 'not empty' : 'empty',
+            cookies: showCookies ? req?.cookies ?? '' : 'Logging disabled in httpLoggerConfig',
             sessionId: req?.sessionID ?? '',
-            body: showBody ? req?.body ?? '' : 'not logged',
-            session: showSession ? req?.session ?? '' : 'not logged',
-            headers: showHeaders ? req?.headers ?? '' : 'not logged',
+            body: showReqBody ? req?.body ?? '' : 'Logging disabled in httpLoggerConfig',
+            session: showSession ? req?.session ?? '' : 'Logging disabled in httpLoggerConfig',
+            headers: showHeaders ? req?.headers ?? '' : 'Logging disabled in httpLoggerConfig',
             stale: req?.stale ?? '',
         },
         message: message ?? '',
-    });
+    } : 'Logging disabled in httpLoggerConfig');
 };
 
 /** Logs express response on finish
@@ -113,16 +114,16 @@ const logResponse = (req: Request, res: Response, startTimer?: [number, number],
         const resEndMessage = res.statusMessage;
         newLine();
         const resEndTime = startTimer ? getActualDurationInMilliseconds(startTimer).toLocaleString() + ' ms' : '';
-        log(`${chalk.magenta.bold(`(?) Response spec`)} = `, {
+        log(`${chalk.magenta.bold(`(?) Response spec`)} = `, doLogResponse ? {
             route: `${req?.method} ${req?.path}`,
             response_status: `${resEndStatus} - ${resEndMessage}`,
             server_response_health: `${resHealthStatus} - ${resHealthMessage}`,
             response_send_timeStamp: dateTimeStamp(),
-            responseTime: startTimer ? resEndTime : 'not logged',
-            // body: showBody ? body ?? '' : 'not logged',
-        });
+            responseTime: startTimer ? resEndTime : 'Logging disabled in httpLoggerConfig',
+            // body: showBody ? body ?? '' : 'Logging disabled in httpLoggerConfig',
+        } : 'Logging disabled in httpLoggerConfig');
         newLine();
-        log(`${chalk.black.bold(`[B] Response body = [[`)}\n`, showBody ? body ?? '' : 'not logged');
+        log(`${chalk.black.bold(`[B] Response body = [[`)}\n`, showBody ? body ?? '' : 'Logging disabled in httpLoggerConfig');
         log(chalk.black.bold(']]'));
         newLine();
         log(`${chalk.cyanBright.bold.underline(`Response sent`)}: [${chalk.grey(`${resEndStatus} - ${resEndMessage}`)}] ${startTimer ? chalk.red(resEndTime) : ''}`);
